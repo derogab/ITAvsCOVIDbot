@@ -158,7 +158,7 @@ def info(update, context):
 
     # Info msg
     info_msg  = "_Informazioni utili sul bot_\n\n"
-    info_msg += "Il bot è stato sviluppato da @derogab e il codice sorgente è pubblicamente disponibile su Github. \n\n"
+    info_msg += "Il bot è stato sviluppato da @derogab e il [codice sorgente](https://github.com/derogab/ITAvsCOVIDbot) è pubblicamente disponibile su Github. \n\n"
     info_msg += "I dati mostrati sono scaricati dagli [Open Data ufficiali](https://github.com/italia/covid19-opendata-vaccini) sui vaccini in Italia. \n\n"
     info_msg += "I grafici sono automaticamente generati mediante il codice della [repository pubblica](https://github.com/MarcoBuster/quanto-manca) di @MarcoBuster. \n\n"
     
