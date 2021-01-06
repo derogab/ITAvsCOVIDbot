@@ -1,0 +1,49 @@
+version: "3.5"
+
+networks:
+  itavscovidbot.network:
+    name: itavscovidbot.network
+
+
+services:
+
+  db:
+    image: mongo
+    container_name: itavscovidbot.db
+    restart: unless-stopped
+    env_file:
+      - ./db/.env
+    volumes:
+      - ./db/data:/data/db
+    networks:
+      - itavscovidbot.network
+
+  db.web:
+    depends_on:
+      - db
+    image: mongo-express
+    container_name: itavscovidbot.db.web
+    restart: unless-stopped
+    links:
+      - db
+    env_file:
+      - ./db/web/.env
+    ports:
+      - 8081:8081
+    networks:
+      - itavscovidbot.network
+    
+  app:
+    depends_on:
+      - db
+      - db.web
+    build:
+      context: .
+    container_name: itavscovidbot.app
+    restart: unless-stopped
+    links:
+      - db
+    env_file:
+      - ./.env
+    networks:
+      - itavscovidbot.network

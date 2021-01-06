@@ -1,0 +1,10 @@
+python-telegram-bot
+python-dotenv
+pandas
+matplotlib
+requests
+numpy
+imgkit
+pdfkit
+pymongo
+schedule
