@@ -10,7 +10,7 @@ from telegram.ext import CommandHandler
 from pymongo import MongoClient
 
 import io
-from datetime import timedelta as td
+from datetime import datetime as dt, timedelta as td
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -76,11 +76,13 @@ def download():
     )
     df = df.loc[df["area"] == "ITA"]
     df["totale"] = pd.to_numeric(df["totale"])
-    # df = df[:-1]  # Ignore the last day because it's often incomplete
+    if dt.now() - df.index[-1] < td(days=1):
+        df = df[:-1]  # Ignore the current day because it's often incomplete
 
+    totalVaccines = sum(df["totale"])
     lastWeekData = df.loc[df.index > df.index[-1] - td(days=7)]
     vaccinesPerDayAverage = sum(lastWeekData["totale"]) / 7
-    remainingDays = HIT / vaccinesPerDayAverage
+    remainingDays = (HIT - totalVaccines) / vaccinesPerDayAverage
     hitDate = df.index[-1] + td(days=remainingDays)
 
     # Generate plot
@@ -108,7 +110,7 @@ def download():
         with open('out/' + webpage_filename, 'w+') as wf:
             for line in f.read().splitlines():
                 if "<!-- totalVaccinations -->" in line:
-                    line = f"{sum(df['totale'])}"
+                    line = f"{totalVaccines}"
                 elif "<!-- totalVaccinationsLastWeek -->" in line:
                     line = f"{int(vaccinesPerDayAverage*7)}"
                 elif "<!-- vaccinesPerDay -->" in line:
