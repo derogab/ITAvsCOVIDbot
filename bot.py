@@ -332,7 +332,7 @@ start_handler = CommandHandler('news', news)
 dispatcher.add_handler(start_handler)
 
 # Setup cron
-schedule.every().day.at("10:30").do(job)
+schedule.every().day.at("10:00").do(job)
 
 # Start bot
 updater.start_polling()
