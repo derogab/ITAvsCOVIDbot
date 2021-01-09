@@ -293,12 +293,28 @@ def job():
         "active": True,
         "news": True
     })
+
+    # Counters
+    news_sent_counter = 0
+    news_fail_counter = 0
     # Send news to all active user 
     for user in users:
         
-        # Send photo
-        updater.bot.send_photo(chat_id=user['_id'], photo=open(data['results'], 'rb'), caption="")
+        try:
+            # Send photo
+            updater.bot.send_photo(chat_id=user['_id'], photo=open(data['results'], 'rb'), caption="")
+            # Count news successfully sent
+            news_sent_counter = news_sent_counter + 1
+            # Log
+            print('[JOB] Message successfully sent to ', user['_id'])
+        except: 
+            # Count news fail
+            news_fail_counter = news_fail_counter + 1
+            # Error on sending
+            print('[JOB] Failed to send to ', user['_id'])
 
+    # Log results
+    print("[JOB] Results: {sent} message sent, {fail} messages failed.".format(sent=news_sent_counter, fail=news_fail_counter))
 
     # Remove tmp files
     os.remove(data['plot'])
