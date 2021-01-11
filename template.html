@@ -2,7 +2,7 @@
 <!-- Source: https://github.com/MarcoBuster/quanto-manca/blob/master/template.html -->
 <html lang="it">
 <head>
-	<title>Quanto manca?</title>
+	<title>@itavscovidbot</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -25,35 +25,38 @@
 	</style>
 </head>
 <body>
-	<div class="container mt-4 pt-2 px-xl-5">
+	<div class="container mt-2 pt-2 px-xl-5">
 		<h1>Quando torneremo alla normalità?</h1>
 		<p>
 			La domanda non ha una risposta precisa.
 			Non è ancora chiaro
-			quale è la percentuale di popolazione che deve essere vaccinata per avere la cosidetta
+			quale sia la percentuale della popolazione che deve essere vaccinata per ottenere la cosidetta
 			<b>immunità di gregge</b> o di massa dal virus SARS-Cov-2.
 			Realisticamente, questo numero si aggira intorno all'<b>80% della popolazione</b>
 			ovvero circa 48 milioni di persone.
 		</p>
 		<h3>Analisi dei dati della campagna vaccinale</h3>
 		<p class="mb-2">
-			La campagna vaccinale in Italia è appena iniziata e chiaramente non è ancora a regime, per via di vari fattori
-			politici e non che questo sito non ha intenzione di trattare o dibattere. <br />
+			La campagna vaccinale in Italia è iniziata da poco e chiaramente non è ancora a regime. Le stime qui effettuate
+			saranno via via più affidabili con l'aumentare dei dati. <br />
 		</p>
 		<div class="text-center">
 			In Italia ci sono <br />
 			<span class="text-big">
 				<!-- totalVaccinations -->
-				persone vaccinate.</span> <br />
+				persone vaccinate</span> <br />
+			che corrispondono al <br />
+			<span class="text-big">
+				<!-- totalVaccinationsPerc -->
+				della popolazione.
+			</span> <br />
 			Ne abbiamo vaccinate <br />
 			<span class="text-big">
 				<!-- totalVaccinationsLastWeek -->
 				nell'ultima settimana,</span> <br />
 			con un ritmo di <br />
 			<span class="text-big">
-				
 				<!-- vaccinesPerDay -->
-				
 				vaccini al giorno.</span> <br />
 			Continuando di questo passo, raggiungeremo l'immunità di gregge il <br />
 			<span class="text-bigger">
@@ -63,7 +66,7 @@
 				</span>
 			</span> <br />
 			<span style="position: relative; top: -5px">ovvero fra</span> <br />
-			<span class="text-bigger" style="position: relative; top: -13px;">
+			<span class="text-bigger" style="position: relative; top: -15px;">
 				<!-- daysRemaining -->
 				giorni.
 			</span>

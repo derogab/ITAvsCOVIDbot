@@ -111,6 +111,8 @@ def download():
             for line in f.read().splitlines():
                 if "<!-- totalVaccinations -->" in line:
                     line = f"{totalVaccines}"
+                elif "<!-- totalVaccinationsPerc -->" in line:
+                    line = f"{str(round(totalVaccines / ITALIAN_POPULATION * 100, 2)).replace('.', ',')}%"
                 elif "<!-- totalVaccinationsLastWeek -->" in line:
                     line = f"{int(vaccinesPerDayAverage*7)}"
                 elif "<!-- vaccinesPerDay -->" in line:
@@ -314,7 +316,7 @@ def job():
             print('[JOB] Failed to send to ', user['_id'])
 
     # Log results
-    print("[JOB] Results: {sent} message sent, {fail} messages failed.".format(sent=news_sent_counter, fail=news_fail_counter))
+    print("[JOB] Results: {sent} messages sent, {fail} messages failed.".format(sent=news_sent_counter, fail=news_fail_counter))
 
     # Remove tmp files
     os.remove(data['plot'])
