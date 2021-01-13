@@ -103,6 +103,8 @@ def download():
     plot_filename = 'plot_' + sf + '.png'
     # Create plot image/png
     plt.savefig('out/' + plot_filename, dpi=300, bbox_inches='tight')
+    # Flush the plot
+    plt.clf()
     # Generate tmp webpage/html filename
     webpage_filename = 'tmp_' + sf + '.html'
     # Generate template
