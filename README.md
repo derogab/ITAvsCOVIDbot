@@ -19,7 +19,7 @@ docker-compose up --build
 
 ### Crediti
 
-Il bot è stato sviluppato da [@derogab](https://github.com/MarcoBuster) e il codice sorgente è pubblicamente disponibile su Github. 
+Il bot è stato sviluppato da [@derogab](https://github.com/derogab) e il codice sorgente è pubblicamente disponibile su Github. 
 
 I dati mostrati sono scaricati dagli [Open Data ufficiali](https://github.com/italia/covid19-opendata-vaccini) sui vaccini in Italia. 
 
