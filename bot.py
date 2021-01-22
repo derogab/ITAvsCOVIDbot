@@ -236,7 +236,7 @@ def news(update, context):
     if news == "on":
         to_set = True
         set_msg  = "Le notifiche giornaliere sono state correttamente abiitate.\n\n"
-        set_msg += "Riceverai i dati sul progresso della battaglia contro il Covid in Italia ogni giorno alle 10:00."
+        set_msg += "Riceverai i dati sul progresso della battaglia contro il Covid in Italia ogni giorno alle 18:00."
     
     elif news == "off":
         to_set = False
@@ -352,7 +352,7 @@ start_handler = CommandHandler('news', news)
 dispatcher.add_handler(start_handler)
 
 # Setup cron
-schedule.every().day.at("10:00").do(job)
+schedule.every().day.at("18:00").do(job)
 
 # Start bot
 updater.start_polling()
