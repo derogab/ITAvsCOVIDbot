@@ -1,7 +1,7 @@
 
 
 <div align="center">
-<img src="https://github.com/italia/covid19-opendata-vaccini/blob/master/logo.png" width="150">
+<img src="./assets/images/logo.png" width="150">
 </div>
 <div align="center">
   <h1 align="center">🇮🇹 ITA vs. COVID 🦠</h1>
