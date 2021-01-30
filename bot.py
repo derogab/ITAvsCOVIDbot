@@ -65,17 +65,29 @@ db = client['bot']
 # Function to get data
 def download():
 
+    # Download from open data
     r = requests.get(DATA_URL)
+    # Create dataframe from data
     df = pd.read_csv(
         io.StringIO(r.text),
         index_col="data_somministrazione",
     )
+    # Set date as index 
     df.index = pd.to_datetime(
         df.index,
         format="%Y-%m-%d",
     )
-    df = df.loc[df["area"] == "ITA"]
+    # Sort value based on date
+    df.sort_values('data_somministrazione')
+    # Delete sum data if already exists
+    df = df[df["area"] != "ITA"]
+    # Set target counter to numeric
     df["totale"] = pd.to_numeric(df["totale"])
+    # Group by day and sum counters
+    df = df.groupby(['data_somministrazione'])['totale'].sum().reset_index()
+    # Re-set date as ID in new dataframe
+    df = df.set_index('data_somministrazione')
+    # If there are current day data...
     if dt.now() - df.index[-1] < td(days=1):
         df = df[:-1]  # Ignore the current day because it's often incomplete
 
