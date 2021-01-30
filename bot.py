@@ -160,7 +160,7 @@ def help(update, context):
     help_msg  = "_Lista dei comandi_ \n\n"
     help_msg += "/start - Avvia il bot \n"
     help_msg += "/get - Ricevi i dati aggiornati \n"
-    help_msg += "/news `ON`/`OFF` - Attiva o Disattiva le notifiche giornaliere \n"
+    help_msg += "/news ON/OFF - Attiva o Disattiva le notifiche giornaliere \n"
     help_msg += "/help - Messaggio di aiuto \n"
     help_msg += "/info - Informazioni su questo bot \n"
     help_msg += "/stop - Disattiva il bot \n"
