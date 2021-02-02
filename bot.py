@@ -81,32 +81,39 @@ def download():
     df.sort_values('data_somministrazione')
     # Delete sum data if already exists
     df = df[df["area"] != "ITA"]
-    # Set target counter to numeric
+    # Set target counters to numeric
     df["totale"] = pd.to_numeric(df["totale"])
+    df["seconda_dose"] = pd.to_numeric(df["seconda_dose"])
     # Group by day and sum counters
-    df = df.groupby(['data_somministrazione'])['totale'].sum().reset_index()
+    df_doses = df.groupby(['data_somministrazione'])['totale'].sum().reset_index()
+    df_vaccines = df.groupby(['data_somministrazione'])['seconda_dose'].sum().reset_index()
     # Re-set date as ID in new dataframe
-    df = df.set_index('data_somministrazione')
+    df_doses = df_doses.set_index('data_somministrazione')
+    df_vaccines = df_vaccines.set_index('data_somministrazione')
+    
     # If there are current day data...
-    if dt.now() - df.index[-1] < td(days=1):
-        df = df[:-1]  # Ignore the current day because it's often incomplete
+    if dt.now() - df_doses.index[-1] < td(days=1):
+        df_doses = df_doses[:-1]  # Ignore the current day because it's often incomplete
+    if dt.now() - df_vaccines.index[-1] < td(days=1):
+        df_vaccines = df_vaccines[:-1]  # Ignore the current day because it's often incomplete
 
-    totalVaccines = sum(df["totale"])
-    lastWeekData = df.loc[df.index > df.index[-1] - td(days=7)]
-    vaccinesPerDayAverage = sum(lastWeekData["totale"]) / 7
+    totalDoses = sum(df_doses["totale"])
+    totalVaccines = sum(df_vaccines["seconda_dose"])
+    lastWeekData = df_vaccines.loc[df_vaccines.index > df_vaccines.index[-1] - td(days=7)]
+    vaccinesPerDayAverage = sum(lastWeekData["seconda_dose"]) / 7
     remainingDays = (HIT - totalVaccines) / vaccinesPerDayAverage
-    hitDate = df.index[-1] + td(days=remainingDays)
+    hitDate = df_vaccines.index[-1] + td(days=remainingDays)
 
     # Generate plot
-    plt.ylabel("Vaccini al giorno")
+    plt.ylabel("Vaccinati al giorno")
     plt.xlabel("Ultima settimana")
     plt.grid(True)
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
     plt.gcf().autofmt_xdate()
-    plt.bar(lastWeekData.index, height=lastWeekData["totale"])
+    plt.bar(lastWeekData.index, height=lastWeekData["seconda_dose"])
     # Trendline
-    z = np.polyfit(range(0, 7), lastWeekData["totale"], 2)
+    z = np.polyfit(range(0, 7), lastWeekData["seconda_dose"], 2)
     p = np.poly1d(z)
     plt.plot(lastWeekData.index, p(range(0, 7)), "r--")
     # Secret 4 filenames
@@ -123,7 +130,9 @@ def download():
     with open('template.html', 'r+') as f:
         with open('out/' + webpage_filename, 'w+') as wf:
             for line in f.read().splitlines():
-                if "<!-- totalVaccinations -->" in line:
+                if "<!-- totalDoses -->" in line:
+                    line = f"{totalDoses}"
+                elif "<!-- totalVaccinations -->" in line:
                     line = f"{totalVaccines}"
                 elif "<!-- totalVaccinationsPerc -->" in line:
                     line = f"{str(round(totalVaccines / ITALIAN_POPULATION * 100, 2)).replace('.', ',')}%"
