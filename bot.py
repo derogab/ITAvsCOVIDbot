@@ -339,7 +339,7 @@ def job():
     print('Job running...')
 
     # Download data
-    data = download()
+    intro, plot1, plot2 = download()
     
     # Get active user with daily news
     users = db.users.find({
@@ -354,8 +354,16 @@ def job():
     for user in users:
         
         try:
-            # Send photo
-            updater.bot.send_photo(chat_id=user['_id'], photo=open(data['results'], 'rb'), caption="")
+            # Send photos
+            p1 = open(intro['results'], 'rb')
+            p2 = open(plot1['results'], 'rb')
+            p3 = open(plot2['results'], 'rb')
+
+            p1 = InputMediaPhoto(media=p1)
+            p2 = InputMediaPhoto(media=p2)
+            p3 = InputMediaPhoto(media=p3)
+
+            updater.bot.send_media_group(chat_id=user['_id'], media=[p1, p2, p3])            
             # Count news successfully sent
             news_sent_counter = news_sent_counter + 1
             # Log
@@ -370,9 +378,10 @@ def job():
     print("[JOB] Results: {sent} messages sent, {fail} messages failed.".format(sent=news_sent_counter, fail=news_fail_counter))
 
     # Remove tmp files
-    os.remove(data['plot'])
-    os.remove(data['webpage'])
-    os.remove(data['results'])
+    for data in [intro, plot1, plot2]:
+        os.remove(data['plot'])
+        os.remove(data['webpage'])
+        os.remove(data['results'])
     
 
 
@@ -401,7 +410,7 @@ start_handler = CommandHandler('news', news)
 dispatcher.add_handler(start_handler)
 
 # Setup cron
-schedule.every().day.at("18:00").do(job)
+schedule.every().day.at("18:30").do(job)
 
 # Start bot
 updater.start_polling()
