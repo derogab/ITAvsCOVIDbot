@@ -93,7 +93,7 @@ def progress(first, second, total = ITALIAN_POPULATION):
     
 
 
-def generate(df, target = 'totale', template = 'template.html'):
+def generate(df, target, template):
 
     # Get data from df
     totalVaccines = sum(df[target])
@@ -103,7 +103,7 @@ def generate(df, target = 'totale', template = 'template.html'):
     hitDate = df.index[-1] + td(days=remainingDays)
 
     # Generate plot
-    plt.ylabel('Vaccinati' if target == 'seconda_dose' else 'Somministrazioni')
+    plt.ylabel('Seconda Dose' if target == 'seconda_dose' else 'Prima Dose' if target == 'prima_dose' else 'Totale')
     plt.xlabel("Ultima settimana")
     plt.grid(True)
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
@@ -178,28 +178,28 @@ def download():
     # Delete sum data if already exists
     df = df[df["area"] != "ITA"]
     # Set target counters to numeric
-    df["totale"] = pd.to_numeric(df["totale"])
+    df["prima_dose"] = pd.to_numeric(df["prima_dose"])
     df["seconda_dose"] = pd.to_numeric(df["seconda_dose"])
     # Group by day and sum counters
-    df_doses = df.groupby(['data_somministrazione'])['totale'].sum().reset_index()
-    df_vaccines = df.groupby(['data_somministrazione'])['seconda_dose'].sum().reset_index()
+    df_first = df.groupby(['data_somministrazione'])['prima_dose'].sum().reset_index()
+    df_second = df.groupby(['data_somministrazione'])['seconda_dose'].sum().reset_index()
     # Re-set date as ID in new dataframe
-    df_doses = df_doses.set_index('data_somministrazione')
-    df_vaccines = df_vaccines.set_index('data_somministrazione')
+    df_first = df_first.set_index('data_somministrazione')
+    df_second = df_second.set_index('data_somministrazione')
     
     # If there are current day data...
-    if dt.now() - df_doses.index[-1] < td(days=1):
-        df_doses = df_doses[:-1]  # Ignore the current day because it's often incomplete
-    if dt.now() - df_vaccines.index[-1] < td(days=1):
-        df_vaccines = df_vaccines[:-1]  # Ignore the current day because it's often incomplete
+    if dt.now() - df_first.index[-1] < td(days=1):
+        df_first = df_first[:-1]  # Ignore the current day because it's often incomplete
+    if dt.now() - df_second.index[-1] < td(days=1):
+        df_second = df_second[:-1]  # Ignore the current day because it's often incomplete
 
     # Generata images
-    intro = generate(df_vaccines, 'seconda_dose', 'assets/templates/intro.html')
-    plot1 = generate(df_doses, 'totale', 'assets/templates/plot.html')
-    plot2 = generate(df_vaccines, 'seconda_dose', 'assets/templates/plot.html')
+    intro = generate(df_second, 'seconda_dose', 'assets/templates/intro.html')
+    plot1 = generate(df_first, 'prima_dose', 'assets/templates/plot.html')
+    plot2 = generate(df_second, 'seconda_dose', 'assets/templates/plot.html')
 
     # Generate progression
-    progression = [sum(df_doses['totale']), sum(df_vaccines['seconda_dose'])]
+    progression = [sum(df_first['prima_dose']), sum(df_second['seconda_dose'])]
 
     return intro, plot1, plot2, progression
 
