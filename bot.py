@@ -62,37 +62,7 @@ db = client['bot']
 
 
 
-def progress(first, second, total = ITALIAN_POPULATION):
-
-    progress_length = 20
-    
-    # first : total = x : 100
-    first_perc = (first * 100) / total
-    # second : total = x : 100
-    second_perc = (second * 100) / total
-
-    # first_perc : x = 100 : progress_length
-    first_cycle = int(first_perc / (100 / progress_length))
-    # second_perc : x = 100 : progress_length
-    second_cycle = int(second_perc / (100 / progress_length))
-
-    # first progress
-    first_progress = ''
-    for i in range(0, first_cycle):
-        first_progress = first_progress + '▓'
-    for i in range(0, progress_length - first_cycle):
-        first_progress = first_progress + '░'
-    # second progress
-    second_progress = ''
-    for i in range(0, second_cycle):
-        second_progress = second_progress + '▓'
-    for i in range(0, progress_length - second_cycle):
-        second_progress = second_progress + '░'
-
-    return first_progress, second_progress
-    
-
-
+# Function to generate images from templates
 def generate(df, target, template):
 
     # Get data from df
@@ -161,6 +131,7 @@ def generate(df, target, template):
     }
 
 
+
 # Function to get data
 def download():
 
@@ -201,10 +172,7 @@ def download():
     plot1 = generate(df_first, 'prima_dose', 'assets/templates/plot.html')
     plot2 = generate(df_second, 'seconda_dose', 'assets/templates/plot.html')
 
-    # Generate progression
-    progression = [sum(df_first['prima_dose']), sum(df_second['seconda_dose'])]
-
-    return intro, plot1, plot2, progression
+    return intro, plot1, plot2
 
 
 
@@ -225,7 +193,6 @@ def help(update, context):
 
 
 
-
 # Info command
 def info(update, context):
 
@@ -237,6 +204,7 @@ def info(update, context):
     
     # Send welcome message
     context.bot.send_message(chat_id=update.effective_chat.id, text=info_msg, parse_mode='Markdown', disable_web_page_preview=True)
+
 
 
 # Start command
@@ -271,6 +239,7 @@ def start(update, context):
     info(update, context)
 
 
+
 # Stop command
 def stop(update, context):
     global db
@@ -292,6 +261,8 @@ def stop(update, context):
 
     # Send welcome message
     context.bot.send_message(chat_id=update.effective_chat.id, text=stop_msg, parse_mode='Markdown')
+
+
 
 # News command
 def news(update, context):
@@ -333,21 +304,20 @@ def news(update, context):
     # Send welcome message
     context.bot.send_message(chat_id=update.effective_chat.id, text=set_msg, parse_mode='Markdown')
 
+
+
 # Get data
 def get(update, context):
 
     # Download data
-    intro, plot1, plot2, progression = download()
+    intro, plot1, plot2 = download()
     
     # Send photos
     p1 = open(intro['results'], 'rb')
     p2 = open(plot1['results'], 'rb')
     p3 = open(plot2['results'], 'rb')
 
-    first, second = progress(progression[0], progression[1])
-    caption = 'Prima Dose\n' + first + '\nSeconda Dose\n' + second
-
-    p1 = InputMediaPhoto(media=p1, caption=caption)
+    p1 = InputMediaPhoto(media=p1)
     p2 = InputMediaPhoto(media=p2)
     p3 = InputMediaPhoto(media=p3)
 
