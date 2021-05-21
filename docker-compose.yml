@@ -1,14 +1,15 @@
-version: "3.5"
+version: '3.7'
 
 networks:
   itavscovidbot.network:
     name: itavscovidbot.network
+    driver: bridge
 
 
 services:
 
   db:
-    image: mongo
+    image: mongo:latest
     container_name: itavscovidbot.db
     restart: unless-stopped
     env_file:
@@ -21,11 +22,9 @@ services:
   db.web:
     depends_on:
       - db
-    image: mongo-express
+    image: mongo-express:latest
     container_name: itavscovidbot.db.web
     restart: unless-stopped
-    links:
-      - db
     env_file:
       - ./db/web/.env
     ports:
@@ -36,13 +35,10 @@ services:
   app:
     depends_on:
       - db
-      - db.web
     build:
       context: .
     container_name: itavscovidbot.app
     restart: unless-stopped
-    links:
-      - db
     env_file:
       - ./.env
     networks:

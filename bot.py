@@ -5,6 +5,7 @@ import secrets
 import schedule
 import time
 from dotenv import load_dotenv
+from telegram import InputMediaPhoto
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from pymongo import MongoClient
@@ -52,7 +53,7 @@ mongodb_pass = os.environ.get('MONGODB_PASS')
 if mongodb_user is None or mongodb_pass is None:
     print('No mongodb auth.')
     exit()
-mongodb_uri  = 'mongodb://' + mongodb_user + ':' + mongodb_pass + '@db:27017',
+mongodb_uri  = 'mongodb://' + mongodb_user + ':' + mongodb_pass + '@db:27017'
 # Init mongodb database
 client = MongoClient(mongodb_uri)
 
@@ -61,59 +62,57 @@ db = client['bot']
 
 
 
+def progress(first, second, total = ITALIAN_POPULATION):
 
-# Function to get data
-def download():
-
-    # Download from open data
-    r = requests.get(DATA_URL)
-    # Create dataframe from data
-    df = pd.read_csv(
-        io.StringIO(r.text),
-        index_col="data_somministrazione",
-    )
-    # Set date as index 
-    df.index = pd.to_datetime(
-        df.index,
-        format="%Y-%m-%d",
-    )
-    # Sort value based on date
-    df.sort_values('data_somministrazione')
-    # Delete sum data if already exists
-    df = df[df["area"] != "ITA"]
-    # Set target counters to numeric
-    df["totale"] = pd.to_numeric(df["totale"])
-    df["seconda_dose"] = pd.to_numeric(df["seconda_dose"])
-    # Group by day and sum counters
-    df_doses = df.groupby(['data_somministrazione'])['totale'].sum().reset_index()
-    df_vaccines = df.groupby(['data_somministrazione'])['seconda_dose'].sum().reset_index()
-    # Re-set date as ID in new dataframe
-    df_doses = df_doses.set_index('data_somministrazione')
-    df_vaccines = df_vaccines.set_index('data_somministrazione')
+    progress_length = 20
     
-    # If there are current day data...
-    if dt.now() - df_doses.index[-1] < td(days=1):
-        df_doses = df_doses[:-1]  # Ignore the current day because it's often incomplete
-    if dt.now() - df_vaccines.index[-1] < td(days=1):
-        df_vaccines = df_vaccines[:-1]  # Ignore the current day because it's often incomplete
+    # first : total = x : 100
+    first_perc = (first * 100) / total
+    # second : total = x : 100
+    second_perc = (second * 100) / total
 
-    totalDoses = sum(df_doses["totale"])
-    totalVaccines = sum(df_vaccines["seconda_dose"])
-    lastWeekData = df_vaccines.loc[df_vaccines.index > df_vaccines.index[-1] - td(days=7)]
-    vaccinesPerDayAverage = sum(lastWeekData["seconda_dose"]) / 7
+    # first_perc : x = 100 : progress_length
+    first_cycle = int(first_perc / (100 / progress_length))
+    # second_perc : x = 100 : progress_length
+    second_cycle = int(second_perc / (100 / progress_length))
+
+    # first progress
+    first_progress = ''
+    for i in range(0, first_cycle):
+        first_progress = first_progress + '▓'
+    for i in range(0, progress_length - first_cycle):
+        first_progress = first_progress + '░'
+    # second progress
+    second_progress = ''
+    for i in range(0, second_cycle):
+        second_progress = second_progress + '▓'
+    for i in range(0, progress_length - second_cycle):
+        second_progress = second_progress + '░'
+
+    return first_progress, second_progress
+    
+
+
+def generate(df, target, template):
+
+    # Get data from df
+    totalVaccines = sum(df[target])
+    lastWeekData = df.loc[df.index > df.index[-1] - td(days=7)]
+    vaccinesPerDayAverage = sum(lastWeekData[target]) / 7
     remainingDays = (HIT - totalVaccines) / vaccinesPerDayAverage
-    hitDate = df_vaccines.index[-1] + td(days=remainingDays)
+    hitDate = df.index[-1] + td(days=remainingDays)
+    first_or_second = 'Seconda Dose' if target == 'seconda_dose' else 'Prima Dose' if target == 'prima_dose' else 'Totale'
 
     # Generate plot
-    plt.ylabel("Vaccinati al giorno")
+    plt.ylabel(first_or_second)
     plt.xlabel("Ultima settimana")
     plt.grid(True)
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
     plt.gcf().autofmt_xdate()
-    plt.bar(lastWeekData.index, height=lastWeekData["seconda_dose"])
+    plt.bar(lastWeekData.index, height=lastWeekData[target])
     # Trendline
-    z = np.polyfit(range(0, 7), lastWeekData["seconda_dose"], 2)
+    z = np.polyfit(range(0, 7), lastWeekData[target], 2)
     p = np.poly1d(z)
     plt.plot(lastWeekData.index, p(range(0, 7)), "r--")
     # Secret 4 filenames
@@ -127,13 +126,13 @@ def download():
     # Generate tmp webpage/html filename
     webpage_filename = 'tmp_' + sf + '.html'
     # Generate template
-    with open('template.html', 'r+') as f:
+    with open(template, 'r+') as f:
         with open('out/' + webpage_filename, 'w+') as wf:
             for line in f.read().splitlines():
-                if "<!-- totalDoses -->" in line:
-                    line = f"{totalDoses}"
-                elif "<!-- totalVaccinations -->" in line:
+                if "<!-- totalVaccinations -->" in line:
                     line = f"{totalVaccines}"
+                elif "<!-- typeVaccinations -->" in line:
+                    line = f"{first_or_second}"
                 elif "<!-- totalVaccinationsPerc -->" in line:
                     line = f"{str(round(totalVaccines / ITALIAN_POPULATION * 100, 2)).replace('.', ',')}%"
                 elif "<!-- totalVaccinationsLastWeek -->" in line:
@@ -160,6 +159,53 @@ def download():
         'results': 'out/' + results_filename,
         'webpage': 'out/' + webpage_filename
     }
+
+
+# Function to get data
+def download():
+
+    # Download from open data
+    r = requests.get(DATA_URL)
+    # Create dataframe from data
+    df = pd.read_csv(
+        io.StringIO(r.text),
+        index_col="data_somministrazione",
+    )
+    # Set date as index 
+    df.index = pd.to_datetime(
+        df.index,
+        format="%Y-%m-%d",
+    )
+    # Sort value based on date
+    df.sort_values('data_somministrazione')
+    # Delete sum data if already exists
+    df = df[df["area"] != "ITA"]
+    # Set target counters to numeric
+    df["prima_dose"] = pd.to_numeric(df["prima_dose"])
+    df["seconda_dose"] = pd.to_numeric(df["seconda_dose"])
+    # Group by day and sum counters
+    df_first = df.groupby(['data_somministrazione'])['prima_dose'].sum().reset_index()
+    df_second = df.groupby(['data_somministrazione'])['seconda_dose'].sum().reset_index()
+    # Re-set date as ID in new dataframe
+    df_first = df_first.set_index('data_somministrazione')
+    df_second = df_second.set_index('data_somministrazione')
+    
+    # If there are current day data...
+    if dt.now() - df_first.index[-1] < td(days=1):
+        df_first = df_first[:-1]  # Ignore the current day because it's often incomplete
+    if dt.now() - df_second.index[-1] < td(days=1):
+        df_second = df_second[:-1]  # Ignore the current day because it's often incomplete
+
+    # Generata images
+    intro = generate(df_second, 'seconda_dose', 'assets/templates/intro.html')
+    plot1 = generate(df_first, 'prima_dose', 'assets/templates/plot.html')
+    plot2 = generate(df_second, 'seconda_dose', 'assets/templates/plot.html')
+
+    # Generate progression
+    progression = [sum(df_first['prima_dose']), sum(df_second['seconda_dose'])]
+
+    return intro, plot1, plot2, progression
+
 
 
 # Help command
@@ -291,15 +337,27 @@ def news(update, context):
 def get(update, context):
 
     # Download data
-    data = download()
+    intro, plot1, plot2, progression = download()
     
-    # Send photo
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(data['results'], 'rb'), caption="")
+    # Send photos
+    p1 = open(intro['results'], 'rb')
+    p2 = open(plot1['results'], 'rb')
+    p3 = open(plot2['results'], 'rb')
+
+    first, second = progress(progression[0], progression[1])
+    caption = 'Prima Dose\n' + first + '\nSeconda Dose\n' + second
+
+    p1 = InputMediaPhoto(media=p1, caption=caption)
+    p2 = InputMediaPhoto(media=p2)
+    p3 = InputMediaPhoto(media=p3)
+
+    context.bot.send_media_group(chat_id=update.effective_chat.id, media=[p1, p2, p3])
 
     # Remove tmp files
-    os.remove(data['plot'])
-    os.remove(data['webpage'])
-    os.remove(data['results'])
+    for data in [intro, plot1, plot2]:
+        os.remove(data['plot'])
+        os.remove(data['webpage'])
+        os.remove(data['results'])
     
 
 
