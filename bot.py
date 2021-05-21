@@ -52,7 +52,7 @@ mongodb_pass = os.environ.get('MONGODB_PASS')
 if mongodb_user is None or mongodb_pass is None:
     print('No mongodb auth.')
     exit()
-mongodb_uri  = 'mongodb://' + mongodb_user + ':' + mongodb_pass + '@db:27017',
+mongodb_uri  = 'mongodb://' + mongodb_user + ':' + mongodb_pass + '@db:27017'
 # Init mongodb database
 client = MongoClient(mongodb_uri)
 
