@@ -101,9 +101,10 @@ def generate(df, target, template):
     vaccinesPerDayAverage = sum(lastWeekData[target]) / 7
     remainingDays = (HIT - totalVaccines) / vaccinesPerDayAverage
     hitDate = df.index[-1] + td(days=remainingDays)
+    first_or_second = 'Seconda Dose' if target == 'seconda_dose' else 'Prima Dose' if target == 'prima_dose' else 'Totale'
 
     # Generate plot
-    plt.ylabel('Seconda Dose' if target == 'seconda_dose' else 'Prima Dose' if target == 'prima_dose' else 'Totale')
+    plt.ylabel(first_or_second)
     plt.xlabel("Ultima settimana")
     plt.grid(True)
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
@@ -130,6 +131,8 @@ def generate(df, target, template):
             for line in f.read().splitlines():
                 if "<!-- totalVaccinations -->" in line:
                     line = f"{totalVaccines}"
+                elif "<!-- typeVaccinations -->" in line:
+                    line = f"{first_or_second}"
                 elif "<!-- totalVaccinationsPerc -->" in line:
                     line = f"{str(round(totalVaccines / ITALIAN_POPULATION * 100, 2)).replace('.', ',')}%"
                 elif "<!-- totalVaccinationsLastWeek -->" in line:
