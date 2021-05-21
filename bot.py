@@ -5,6 +5,7 @@ import secrets
 import schedule
 import time
 from dotenv import load_dotenv
+from telegram import InputMediaPhoto
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from pymongo import MongoClient
@@ -61,6 +62,101 @@ db = client['bot']
 
 
 
+def progress(first, second, total = ITALIAN_POPULATION):
+
+    progress_length = 20
+    
+    # first : total = x : 100
+    first_perc = (first * 100) / total
+    # second : total = x : 100
+    second_perc = (second * 100) / total
+
+    # first_perc : x = 100 : progress_length
+    first_cycle = int(first_perc / (100 / progress_length))
+    # second_perc : x = 100 : progress_length
+    second_cycle = int(second_perc / (100 / progress_length))
+
+    # first progress
+    first_progress = ''
+    for i in range(0, first_cycle):
+        first_progress = first_progress + '▓'
+    for i in range(0, progress_length - first_cycle):
+        first_progress = first_progress + '░'
+    # second progress
+    second_progress = ''
+    for i in range(0, second_cycle):
+        second_progress = second_progress + '▓'
+    for i in range(0, progress_length - second_cycle):
+        second_progress = second_progress + '░'
+
+    return first_progress, second_progress
+    
+
+
+def generate(df, target = 'totale', template = 'template.html'):
+
+    # Get data from df
+    totalVaccines = sum(df[target])
+    lastWeekData = df.loc[df.index > df.index[-1] - td(days=7)]
+    vaccinesPerDayAverage = sum(lastWeekData[target]) / 7
+    remainingDays = (HIT - totalVaccines) / vaccinesPerDayAverage
+    hitDate = df.index[-1] + td(days=remainingDays)
+
+    # Generate plot
+    plt.ylabel('Vaccinati' if target == 'seconda_dose' else 'Somministrazioni')
+    plt.xlabel("Ultima settimana")
+    plt.grid(True)
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
+    plt.gcf().autofmt_xdate()
+    plt.bar(lastWeekData.index, height=lastWeekData[target])
+    # Trendline
+    z = np.polyfit(range(0, 7), lastWeekData[target], 2)
+    p = np.poly1d(z)
+    plt.plot(lastWeekData.index, p(range(0, 7)), "r--")
+    # Secret 4 filenames
+    sf = secrets.token_hex(16)
+    # Generate plot filename
+    plot_filename = 'plot_' + sf + '.png'
+    # Create plot image/png
+    plt.savefig('out/' + plot_filename, dpi=300, bbox_inches='tight')
+    # Flush the plot
+    plt.clf()
+    # Generate tmp webpage/html filename
+    webpage_filename = 'tmp_' + sf + '.html'
+    # Generate template
+    with open(template, 'r+') as f:
+        with open('out/' + webpage_filename, 'w+') as wf:
+            for line in f.read().splitlines():
+                if "<!-- totalVaccinations -->" in line:
+                    line = f"{totalVaccines}"
+                elif "<!-- totalVaccinationsPerc -->" in line:
+                    line = f"{str(round(totalVaccines / ITALIAN_POPULATION * 100, 2)).replace('.', ',')}%"
+                elif "<!-- totalVaccinationsLastWeek -->" in line:
+                    line = f"{int(vaccinesPerDayAverage*7)}"
+                elif "<!-- vaccinesPerDay -->" in line:
+                    line = f"{int(vaccinesPerDayAverage)}"
+                elif "<!-- hitDate -->" in line:
+                    line = f"{hitDate.strftime('%d/%m/%Y')}"
+                elif "<!-- hitHour -->" in line:
+                    line = f"{hitDate.strftime('%H:%M:%S')}"
+                elif "<!-- daysRemaining -->" in line:
+                    line = f"{int(remainingDays)}"
+                elif "plot.png" in line:
+                    line = line.replace('plot.png', plot_filename)
+                wf.write("\n" + line)
+    # Generate plot filename
+    results_filename = 'results_' + sf + '.png'
+    # Create results image/png
+    imgkit.from_file('out/' + webpage_filename, 'out/' + results_filename)
+
+    # Return out data
+    return {
+        'plot': 'out/' + plot_filename,
+        'results': 'out/' + results_filename,
+        'webpage': 'out/' + webpage_filename
+    }
+
 
 # Function to get data
 def download():
@@ -97,69 +193,16 @@ def download():
     if dt.now() - df_vaccines.index[-1] < td(days=1):
         df_vaccines = df_vaccines[:-1]  # Ignore the current day because it's often incomplete
 
-    totalDoses = sum(df_doses["totale"])
-    totalVaccines = sum(df_vaccines["seconda_dose"])
-    lastWeekData = df_vaccines.loc[df_vaccines.index > df_vaccines.index[-1] - td(days=7)]
-    vaccinesPerDayAverage = sum(lastWeekData["seconda_dose"]) / 7
-    remainingDays = (HIT - totalVaccines) / vaccinesPerDayAverage
-    hitDate = df_vaccines.index[-1] + td(days=remainingDays)
+    # Generata images
+    intro = generate(df_vaccines, 'seconda_dose', 'assets/templates/intro.html')
+    plot1 = generate(df_doses, 'totale', 'assets/templates/plot.html')
+    plot2 = generate(df_vaccines, 'seconda_dose', 'assets/templates/plot.html')
 
-    # Generate plot
-    plt.ylabel("Vaccinati al giorno")
-    plt.xlabel("Ultima settimana")
-    plt.grid(True)
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
-    plt.gcf().autofmt_xdate()
-    plt.bar(lastWeekData.index, height=lastWeekData["seconda_dose"])
-    # Trendline
-    z = np.polyfit(range(0, 7), lastWeekData["seconda_dose"], 2)
-    p = np.poly1d(z)
-    plt.plot(lastWeekData.index, p(range(0, 7)), "r--")
-    # Secret 4 filenames
-    sf = secrets.token_hex(16)
-    # Generate plot filename
-    plot_filename = 'plot_' + sf + '.png'
-    # Create plot image/png
-    plt.savefig('out/' + plot_filename, dpi=300, bbox_inches='tight')
-    # Flush the plot
-    plt.clf()
-    # Generate tmp webpage/html filename
-    webpage_filename = 'tmp_' + sf + '.html'
-    # Generate template
-    with open('template.html', 'r+') as f:
-        with open('out/' + webpage_filename, 'w+') as wf:
-            for line in f.read().splitlines():
-                if "<!-- totalDoses -->" in line:
-                    line = f"{totalDoses}"
-                elif "<!-- totalVaccinations -->" in line:
-                    line = f"{totalVaccines}"
-                elif "<!-- totalVaccinationsPerc -->" in line:
-                    line = f"{str(round(totalVaccines / ITALIAN_POPULATION * 100, 2)).replace('.', ',')}%"
-                elif "<!-- totalVaccinationsLastWeek -->" in line:
-                    line = f"{int(vaccinesPerDayAverage*7)}"
-                elif "<!-- vaccinesPerDay -->" in line:
-                    line = f"{int(vaccinesPerDayAverage)}"
-                elif "<!-- hitDate -->" in line:
-                    line = f"{hitDate.strftime('%d/%m/%Y')}"
-                elif "<!-- hitHour -->" in line:
-                    line = f"{hitDate.strftime('%H:%M:%S')}"
-                elif "<!-- daysRemaining -->" in line:
-                    line = f"{int(remainingDays)}"
-                elif "plot.png" in line:
-                    line = line.replace('plot.png', plot_filename)
-                wf.write("\n" + line)
-    # Generate plot filename
-    results_filename = 'results_' + sf + '.png'
-    # Create results image/png
-    imgkit.from_file('out/' + webpage_filename, 'out/' + results_filename)
+    # Generate progression
+    progression = [sum(df_doses['totale']), sum(df_vaccines['seconda_dose'])]
 
-    # Return out data
-    return {
-        'plot': 'out/' + plot_filename,
-        'results': 'out/' + results_filename,
-        'webpage': 'out/' + webpage_filename
-    }
+    return intro, plot1, plot2, progression
+
 
 
 # Help command
@@ -291,15 +334,27 @@ def news(update, context):
 def get(update, context):
 
     # Download data
-    data = download()
+    intro, plot1, plot2, progression = download()
     
-    # Send photo
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(data['results'], 'rb'), caption="")
+    # Send photos
+    p1 = open(intro['results'], 'rb')
+    p2 = open(plot1['results'], 'rb')
+    p3 = open(plot2['results'], 'rb')
+
+    first, second = progress(progression[0], progression[1])
+    caption = 'Prima Dose\n' + first + '\nSeconda Dose\n' + second
+
+    p1 = InputMediaPhoto(media=p1, caption=caption)
+    p2 = InputMediaPhoto(media=p2)
+    p3 = InputMediaPhoto(media=p3)
+
+    context.bot.send_media_group(chat_id=update.effective_chat.id, media=[p1, p2, p3])
 
     # Remove tmp files
-    os.remove(data['plot'])
-    os.remove(data['webpage'])
-    os.remove(data['results'])
+    for data in [intro, plot1, plot2]:
+        os.remove(data['plot'])
+        os.remove(data['webpage'])
+        os.remove(data['results'])
     
 
 
