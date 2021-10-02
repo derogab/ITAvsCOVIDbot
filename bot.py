@@ -120,8 +120,10 @@ def generate(df, target, template):
                 wf.write("\n" + line)
     # Generate plot filename
     results_filename = 'results_' + sf + '.png'
+    # Set imgkit options
+    options = {'enable-local-file-access': None}
     # Create results image/png
-    imgkit.from_file('out/' + webpage_filename, 'out/' + results_filename)
+    imgkit.from_file('out/' + webpage_filename, 'out/' + results_filename, options=options)
 
     # Return out data
     return {
