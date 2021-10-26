@@ -1,18 +1,16 @@
-FROM python:3-slim
+FROM python:3-alpine
 
 # Set working space
 WORKDIR /usr/src/app
 
 # Install dependencies
-RUN apt-get update \
-    # Prevent endless waiting
-    && DEBIAN_FRONTEND=noninteractive \
+RUN apk update \
     # Set UTC as timezone
     && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     # Install APT packages
-    && apt-get install -y --fix-missing wkhtmltopdf \
+    && apk add gcc build-base freetype-dev libpng-dev openblas-dev wkhtmltopdf \
     # Remove tmp files
-    && apt-get clean && rm -rf /tmp/* /var/tmp/* \
+    && rm -rf /tmp/* /var/tmp/* \
     # Add PiWheels support
     && echo "[global]\nextra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf \
     # Upgrade PIP 
@@ -20,7 +18,7 @@ RUN apt-get update \
 
 # Copy and install requirements
 COPY requirements.txt .
-RUN python3 -m pip install -r requirements.txt
+RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 # Copy app
 COPY . .
