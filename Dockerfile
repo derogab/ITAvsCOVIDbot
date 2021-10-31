@@ -5,13 +5,14 @@ WORKDIR /usr/src/app
 
 # Install dependencies
 RUN apk update \
-    # Set UTC as timezone
-    && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     # Install packages
     && apk add \
+        tzdata \
         build-base freetype-dev libpng-dev openblas-dev \
         python3 py3-pip py3-numpy py3-pandas py3-matplotlib \
         wkhtmltopdf \
+    # Set UTC as timezone
+    && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     # Remove tmp files
     && rm -rf /tmp/* /var/tmp/* \
     # Add PiWheels support
