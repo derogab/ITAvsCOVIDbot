@@ -10,7 +10,7 @@ RUN apk update \
     # Install packages
     && apk add \
         build-base freetype-dev libpng-dev openblas-dev \
-        python3 py3-numpy py3-pandas py3-matplotlib \
+        python3 py3-pip py3-numpy py3-pandas py3-matplotlib \
         wkhtmltopdf \
     # Remove tmp files
     && rm -rf /tmp/* /var/tmp/* \
