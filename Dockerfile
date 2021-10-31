@@ -9,7 +9,7 @@ RUN apk update \
     && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     # Install APT packages
     && apk add \
-        gcc build-base freetype-dev libpng-dev openblas-dev \
+        gcc cmake build-base freetype-dev libpng-dev openblas-dev \
         py3-numpy py3-pandas py3-matplotlib \
         wkhtmltopdf \
     # Remove tmp files
