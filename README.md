@@ -1,23 +1,29 @@
 
+<h1 align="center">:it: ITA vs. COVID :microbe:</h1>
+<p align="center">
+    <img src="./assets/images/logo.png" alt="header" width="150px">
+</p>
+<h3 align="center">Un bot telegram che ti aggiorna sulla battaglia contro il Covid in Italia</h3>
+<p align="center">
+    <a href="https://hub.docker.com/r/derogab/itavscovidbot">
+        <img src="https://img.shields.io/docker/pulls/derogab/itavscovidbot?label=Downloads&logo=docker" alt="Docker Pulls">
+    </a>
+    <a href="https://github.com/derogab/itavscovidbot/actions/workflows/docker-publish.yml">
+        <img src="https://github.com/derogab/itavscovidbot/actions/workflows/docker-publish.yml/badge.svg" alt="Build & Push Docker Image">
+    </a>
+</p>
 
-<div align="center">
-<img src="./assets/images/logo.png" width="150">
-</div>
-<div align="center">
-  <h1 align="center">🇮🇹 ITA vs. COVID 🦠</h1>
-  Un bot telegram che ti aggiorna sulla battaglia contro il Covid in Italia.
-</div>
 
-### Configurazione
+## Configurazione
 Copia tutti i file `.env.sample` nei relativi `.env` con le preferenze personali.
 
-### Avvio
+## Avvio
 Il bot utilizza [docker](https://www.docker.com/) e [docker-compose](https://docs.docker.com/compose).
 ```
 docker-compose up --build
 ```
 
-### Crediti
+## Crediti
 
 Il bot è stato sviluppato da [@derogab](https://github.com/derogab) e il codice sorgente è pubblicamente disponibile su Github. 
 
