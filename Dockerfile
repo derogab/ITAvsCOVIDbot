@@ -9,7 +9,7 @@ RUN apk update --no-cache \
     && apk add --no-cache \
         tzdata \
         python3 py3-pip py3-numpy py3-pandas py3-matplotlib \
-        wkhtmltopdf \
+        ttf-liberation qt5-qtwebkit wkhtmltopdf \
     # Set UTC as timezone
     && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     # Remove tmp files
