@@ -15,10 +15,11 @@ RUN apk update --no-cache \
     && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     # Remove tmp files
     && rm -rf /tmp/* /var/tmp/* \
-    # Add PiWheels support
-    && echo "[global]\nextra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf \
     # Upgrade PIP 
     && python3 -m pip install --no-cache-dir --upgrade pip
+
+# Copy PIP extra index URLs
+COPY pip.conf 
 
 # Copy requirements
 COPY requirements.txt .
@@ -27,6 +28,8 @@ COPY requirements.txt .
 RUN apk update --no-cache \
     # Install tmp packages 
     && apk add --no-cache --virtual build-deps gcc python3-dev musl-dev \
+    # Add PIP extra index URLs
+    && mv pip.conf /etc/pip.conf \
     # Install PIP packages
     && python3 -m pip install --no-cache-dir -r requirements.txt \
     # Delete tmp packages
