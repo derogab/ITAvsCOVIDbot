@@ -10,7 +10,7 @@ RUN apt-get update \
     # Set UTC as timezone
     && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     # Install APT packages
-    && apt-get install -y --fix-missing wkhtmltopdf \
+    && apt-get install -y --fix-missing wkhtmltopdf gfortran \
     # Remove tmp files
     && apt-get clean && rm -rf /tmp/* /var/tmp/* \
     # Add PiWheels support
