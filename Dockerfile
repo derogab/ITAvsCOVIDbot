@@ -19,7 +19,7 @@ RUN apk update --no-cache \
     && python3 -m pip install --no-cache-dir --upgrade pip
 
 # Copy PIP extra index URLs
-COPY pip.conf 
+COPY pip.conf .
 
 # Copy requirements
 COPY requirements.txt .
