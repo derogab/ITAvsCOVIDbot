@@ -102,7 +102,7 @@ def generate(df, target, template):
             for line in f.read().splitlines():
                 if "<!-- totalVaccinations -->" in line:
                     line = f"{totalVaccines}"
-                if "<!-- totalVaccinationsBooster -->" in line:
+                elif "<!-- totalVaccinationsBooster -->" in line:
                     line = f"{totalVaccinesBooster}"
                 elif "<!-- typeVaccinations -->" in line:
                     line = f"{first_or_second}"
