@@ -4,9 +4,9 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 # Install dependencies
-RUN apk update \
+RUN apk update --no-cache \
     # Install packages
-    && apk add \
+    && apk add --no-cache \
         tzdata \
         build-base freetype-dev libpng-dev openblas-dev \
         python3 py3-pip py3-numpy py3-pandas py3-matplotlib \
@@ -24,9 +24,9 @@ RUN apk update \
 COPY requirements.txt .
 
 # Install requirements
-RUN apk update \
+RUN apk update --no-cache \
     # Install tmp packages 
-    && apk add --virtual build-deps gcc python3-dev musl-dev \
+    && apk add --no-cache --virtual build-deps gcc python3-dev musl-dev \
     # Install PIP packages
     && python3 -m pip install --no-cache-dir -r requirements.txt \
     # Delete tmp packages
