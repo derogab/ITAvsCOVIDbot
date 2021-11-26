@@ -33,33 +33,34 @@
 </head>
 <body>
 	<div class="container mt-2 pt-2 px-xl-5" id="content">
-		<h1>Quando torneremo alla normalità?</h1>
+		<h1>🇮🇹 ITA vs. COVID-19 🦠</h1>
 		<p>
-			La domanda non ha una risposta precisa.
-			Non è ancora chiaro
-			quale sia la percentuale della popolazione che deve essere vaccinata per ottenere la cosidetta
-			<b>immunità di gregge</b> o di massa dal virus SARS-Cov-2.
-			Realisticamente, questo numero si aggira intorno all'<b>80% della popolazione</b>
-			ovvero circa 48 milioni di persone.
+			Questo bot è nato durante la pandemia di COVID-19 e, nelle sue prime 2 versioni, mostrava l'andamento della
+			vaccinazione in Italia, calcolando una stima sul tempo mancante prima del raggiungimento della cosidetta
+			<i>immunità di gregge</i> o di massa dal virus SARS-Cov-2.
+		</p>
+		<p>
+			Con il passare del tempo, l'evoluzione della situazione pandemica e l'aumentare della popolazione vaccinata, 
+			il calcolo di questa stima non rappresenta più un dato utile.
+
+			Per questo il bot è stato aggiornato e nella versione corrente mostra l'<b>andamento della vaccinazione in Italia</b> 
+			in relazione a ciclo vaccinale primario e dosi booster aggiuntive.	
 		</p>
 		<h3>Analisi dei dati della campagna vaccinale</h3>
 		<p class="mb-2">
-			La stima qui effettuata indica il tempo che mancherebbe al raggiungimento 
-			dell'immunità di gregge qualora si tenesse il ritmo degli ultimi 7 giorni. <br />
+			Le informazioni e i grafici qui presenti sono stati raccolti a partire dalla repository ufficiale pubblica
+			della pubblica amministrazione.
+			<br />
 		</p>
 		<hr>
 		<div class="text-center">
-			Continuando di questo passo, raggiungeremo l'immunità di gregge il <br />
+			Le persone che in Italia hanno completato almeno un ciclo vaccinale sono <br />
 			<span class="text-bigger">
-				<!-- hitDate -->
-				<span class="d-none d-sm-inline">
-				<!-- hitHour -->
-				</span>
+				<!-- totalVaccinations -->
 			</span> <br />
-			<span style="position: relative; top: -5px">ovvero fra</span> <br />
+			<span style="position: relative; top: -5px">tra le quali quelle che hanno già effettuato la (terza) dose booster sono</span> <br />
 			<span class="text-bigger" style="position: relative; top: -15px;">
-				<!-- daysRemaining -->
-				giorni.
+				<!-- totalVaccinationsBooster -->
 			</span>
 		</div>
 		<hr>
@@ -70,6 +71,13 @@
 			Dal 21 maggio 2021 sono mostrati due differenti grafici per differenziare 
 			le prime e le seconde dosi. 
 		</p>
+		<p class="pt-2 notes">
+			Da novembre 2021 i due grafici mostrano rispettivamente i dati del primo ciclo vaccinale e della dose booster. 
+		</p>
 	</div>
+
+	<!-- Use twemoji -->
+	<script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+	<script>twemoji.parse(document.body);</script>
 </body>
 </html>
