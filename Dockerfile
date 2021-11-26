@@ -8,7 +8,6 @@ RUN apk update --no-cache \
     # Install packages
     && apk add --no-cache \
         tzdata \
-        build-base freetype-dev libpng-dev openblas-dev \
         python3 py3-pip py3-numpy py3-pandas py3-matplotlib \
         wkhtmltopdf \
     # Set UTC as timezone
@@ -27,7 +26,7 @@ COPY requirements.txt .
 # Install requirements
 RUN apk update --no-cache \
     # Install tmp packages 
-    && apk add --no-cache --virtual build-deps gcc python3-dev musl-dev \
+    && apk add --no-cache --virtual build-deps gcc python3-dev musl-dev build-base freetype-dev libpng-dev openblas-dev \
     # Add PIP extra index URLs
     && mv pip.conf /etc/pip.conf \
     # Install PIP packages
