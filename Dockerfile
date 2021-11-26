@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.14
 
 # Set working space
 WORKDIR /usr/src/app
